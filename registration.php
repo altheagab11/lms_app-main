@@ -442,6 +442,64 @@ $(document).ready(function(){
 </script>
 
  <!-- AJAX for live checking of existing emails (should be pasted in the registration.php) (CODE ENDS HERE) -->
+
+ <!-- AJAX for live checking of existing emails (inside the registration.php) (CODE STARTS HERE) -->
+ <script>
+$(document).ready(function(){
+    function toggleNextButton(isEnabled) {
+        $('#nextButton').prop('disabled', !isEnabled);
+    }
+
+    $('#username').on('input', function(){
+        var username = $(this).val();
+        if (username.length > 0) {
+            $.ajax({
+                url: 'AJAX/check_user.php',
+                method: 'POST',
+                data: { username: username },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.exists) {
+                        // Email is already taken
+                        $('#username').removeClass('is-valid').addClass('is-invalid');
+                        $('#usernameFeedback').text('Username is already taken.').show();
+                        $('#username')[0].setCustomValidity('Username is already taken.');
+                        $('#username').siblings('.invalid-feedback').not('#usernameFeedback').hide();
+                        toggleNextButton(false); // ❌ Disable next button
+                    } else {
+                        // Email is valid and available
+                        $('#username').removeClass('is-invalid').addClass('is-valid');
+                        $('#usernameFeedback').text('').hide();
+                        $('#username')[0].setCustomValidity('');
+                        $('#username').siblings('.valid-feedback').show();
+                        toggleNextButton(true); // ✅ Enable next button
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred: ' + error);
+                }
+            });
+        } else {
+            // Empty input reset
+            $('#username').removeClass('is-valid is-invalid');
+            $('#usernameFeedback').text('').hide();
+            $('#username')[0].setCustomValidity('');
+            toggleNextButton(false); // ❌ Disable next button
+        }
+    });
+
+    $('#username').on('invalid', function() {
+        if ($('#username')[0].validity.valueMissing) {
+            $('#username')[0].setCustomValidity('Please enter a valid username.');
+            $('#usernameFeedback').hide();
+            toggleNextButton(false); // ❌ Disable next button
+        }
+    });
+
+});
+</script>
+
+ <!-- AJAX for live checking of existing emails (should be pasted in the registration.php) (CODE ENDS HERE) -->
   
   </body>
   </html>
