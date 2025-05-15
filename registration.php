@@ -388,4 +388,3 @@ function validateStep(step) {
   
   </body>
   </html>
-  
