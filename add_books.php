@@ -1,10 +1,57 @@
+<?php
+
+session_start();
+
+require_once('classes/database.php');
+$con = new database();
+
+$sweetAlertConfig = ""; //Initialize SweetAlert script variable
+
+if (isset($_POST['add'])) {
+
+  $bookTitle = $_POST['booktitle'];
+  $bookISBN = $_POST['bookisbn'];
+  $bookYear = $_POST['bookyear'];
+  $bookGenres = $_POST['bookgenre'];
+  $bookQuantity = $_POST['bookquan'];
+  $bookID = $con->addBook($bookTitle, $bookISBN, $bookYear, $bookGenres, $bookQuantity);
+
+  if ($bookID) {
+
+    $sweetAlertConfig = "
+    <script>
+    
+    Swal.fire({
+        icon: 'success',
+        title: 'Book Added Successfully',
+        text: 'Book has been added successfully!',
+        confirmationButtontext: 'OK'
+     }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'login.php'
+        }
+            });
+
+    </script>";
+
+  } else {
+
+    $_SESSION['error'] = "Sorry, there was an error.";
+    
+  }
+
+}
+
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"> <!-- Correct Bootstrap Icons CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="./package/dist/sweetalert2.css">
   <title>Books</title>
 </head>
 <body>
@@ -46,22 +93,22 @@
 <div class="container my-5 border border-2 rounded-3 shadow p-4 bg-light">
 
   <h4 class="mt-5">Add New Book</h4>
-  <form>
+  <form method="post" action="" novalidate>
     <div class="mb-3">
       <label for="bookTitle" class="form-label">Book Title</label>
-      <input type="text" class="form-control" id="bookTitle" required>
+      <input type="text" class="form-control" id="bookTitle" name="booktitle" required>
     </div>
     <div class="mb-3">
       <label for="bookISBN" class="form-label">ISBN</label>
-      <input type="text" class="form-control" id="bookISBN" required>
+      <input type="text" class="form-control" id="bookISBN" name="bookisbn" required>
     </div>
     <div class="mb-3">
       <label for="bookYear" class="form-label">Publication Year</label>
-      <input type="number" class="form-control" id="bookYear" required>
+      <input type="number" class="form-control" id="bookYear" name="bookyear" required>
     </div>
     <div class="mb-3">
       <label for="bookGenres" class="form-label">Genres</label>
-      <select class="form-select" id="bookGenres" multiple required>
+      <select class="form-select" id="bookGenres" name="bookgenre" multiple required>
         <option value="Fiction">Fiction</option>
         <option value="Non-Fiction">Non-Fiction</option>
         <option value="Science">Science</option>
@@ -75,14 +122,14 @@
     </div>
     <div class="mb-3">
       <label for="bookQuantity" class="form-label">Quantity Available</label>
-      <input type="number" class="form-control" id="bookQuantity" required>
+      <input type="number" class="form-control" id="bookQuantity" name="bookquan" required>
     </div>
 
-    <button type="submit" class="btn btn-primary">Add Book</button>
+    <button type="submit" name="add" class="btn btn-primary">Add Book</button>
   </form>
 </div>
 <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script> <!-- Add Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script> <!-- Correct Bootstrap JS -->
+    <script src="./package/dist/sweetalert2.js"></script>
+    <?php echo $sweetAlertConfig; ?>
 </body>
 </html>

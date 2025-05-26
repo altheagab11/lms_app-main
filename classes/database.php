@@ -131,5 +131,27 @@ class database{
 
     }
 
+    function addBook($bookTitle, $bookISBN, $bookYear, $bookGenres, $bookQuantity) {
+
+         $con = $this->opencon();
+        
+        try {
+            $con->beginTransaction();
+
+            $stmt = $con->prepare("INSERT INTO books (book_title, book_isbn, book_pubyear, book_genre, quantity_avail) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$bookTitle, $bookISBN, $bookYear, $bookGenres, $bookQuantity]);
+            $bookID = $con->lastInsertId();
+            $con->commit();
+            return $bookID;
+
+        } catch (PDOException $e) {
+
+            $con->rollback();
+            return false;
+
+        }
+
+    }
+
 }
 ?>

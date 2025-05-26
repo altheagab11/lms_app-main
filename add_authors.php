@@ -23,7 +23,7 @@ if (isset($_POST['add'])) {
     Swal.fire({
         icon: 'success',
         title: 'Author Added Successfully',
-        text: 'The author has been added successfully!',
+        text: 'Author has been added successfully!',
         confirmationButtontext: 'OK'
      }).then((result) => {
         if (result.isConfirmed) {
