@@ -319,5 +319,12 @@ if (isset($_SESSION['user_ID'])) {
 <script src="poppers/js/popper.min.js"></script> <!-- Local Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script> <!-- Add Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script> <!-- Correct Bootstrap JS -->
+<script>
+  function logout() {
+
+    window.location.href="logout.php";
+
+  }
+</script>
 </body>
 </html>
