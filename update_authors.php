@@ -1,19 +1,29 @@
-<?php
-
-session_start();
+<?php 
 
 require_once('classes/database.php');
 $con = new database();
+session_start();
+$sweetAlertConfig = "";
 
-$sweetAlertConfig = ""; //Initialize SweetAlert script variable
+if (empty($id = $_POST['id'])) {
+
+    header('location: index.php');
+
+} else {
+
+    $id = $_POST['id'];
+    $data = $con->viewAuthorsID($id);
+
+}
 
 if (isset($_POST['add'])) {
 
-  $authorFirstName = $_POST['author_FN'];
-  $authorLastName = $_POST['author_LN'];
-  $authorBirthYear = $_POST['author_bday'];
-  $authorNationality = $_POST['author_nat'];
-  $authorID = $con->addAuthor($authorFirstName, $authorLastName, $authorBirthYear, $authorNationality);
+  $id = $_POST['id'];
+  $authorFirstName = $_POST['authorFirstName'];
+  $authorLastName = $_POST['authorLastName'];
+  $authorBirthYear = $_POST['authorBirthYear'];
+  $authorNationality = $_POST['authorNationality'];
+  $authorID = $con->updateAuthors($authorFirstName, $authorLastName, $authorBirthYear, $authorNationality, $id);
 
   if ($authorID) {
 
@@ -22,12 +32,12 @@ if (isset($_POST['add'])) {
     
     Swal.fire({
         icon: 'success',
-        title: 'Author Added Successfully',
-        text: 'Author has been added successfully!',
+        title: 'Author Updated Successfully',
+        text: 'Author has been updated successfully!',
         confirmationButtontext: 'OK'
      }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'login.php'
+            window.location.href = 'admin_homepage.php'
         }
             });
 
@@ -92,23 +102,23 @@ if (isset($_POST['add'])) {
 <div class="container my-5 border border-2 rounded-3 shadow p-4 bg-light">
 
 
-  <h4 class="mt-5">Add New Author</h4>
+  <h4 class="mt-5">Update Existing Author</h4>
   <form method="post" action="" novalidate>
     <div class="mb-3">
       <label for="authorFirstName" class="form-label">First Name</label>
-      <input type="text" class="form-control" name="author_FN" id="authorFirstName" required>
+      <input type="text" value="<?php echo $data['author_FN'] ?>" name="authorFirstName" class="form-control" id="authorFirstName" required>
     </div>
     <div class="mb-3">
       <label for="authorLastName" class="form-label">Last Name</label>
-      <input type="text" class="form-control" name="author_LN" id="authorLastName" required>
+      <input type="text" value="<?php echo $data['author_LN'] ?>" name="authorLastName" class="form-control" id="authorLastName" required>
     </div>
     <div class="mb-3">
       <label for="authorBirthYear" class="form-label">Birth Date</label>
-      <input type="date" class="form-control" name="author_bday" id="authorBirthYear" max="<?= date('Y-m-d') ?>" required>
+      <input type="date" value="<?php echo isset($data['author_birthday']) ? date('Y-m-d', strtotime($data['author_birthday'])) : ''; ?>" class="form-control" name="authorBirthYear" id="authorBirthYear" max="<?= date('Y-m-d') ?>" required>
     </div>
     <div class="mb-3">
       <label for="authorNationality" class="form-label">Nationality</label>
-      <select class="form-select" name="author_nat" id="authorNationality" required>
+      <select class="form-select" value="<?php echo $data['author_nat'] ?>" name="authorNationality" id="authorNationality" required>
         <option value="" disabled selected>Select Nationality</option>
         <option value="American">Filipino</option>
         <option value="American">American</option>
@@ -126,7 +136,8 @@ if (isset($_POST['add'])) {
         <option value="Other">Other</option>
       </select>
     </div>
-    <button type="submit" name= "add" class="btn btn-primary">Add Author</button>
+    <input type="hidden" name="id" value="<?php echo $data['author_id']; ?>">
+    <button type="submit" name= "add" class="btn btn-primary">Update Author</button>
   </form>
 </div>
 
