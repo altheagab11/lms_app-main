@@ -7,6 +7,13 @@ $con = new database();
 
 $sweetAlertConfig = ""; //Initialize SweetAlert script variable
 
+if (!isset($_SESSION['user_ID'])) {
+
+  header(header: "Location: index.php");
+  exit();
+
+}
+
 if (isset($_POST['add'])) {
 
   $authorFirstName = $_POST['author_FN'];
@@ -49,8 +56,8 @@ if (isset($_POST['add'])) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="./package/dist/sweetalert2.css">
+  <link rel="stylesheet" href="./poppers/css/bootstrap-icons.css">
   <title>Authors</title>
 </head>
 <body>
@@ -127,6 +134,8 @@ if (isset($_POST['add'])) {
       </select>
     </div>
     <button type="submit" name= "add" class="btn btn-primary">Add Author</button>
+    <script src="./package/dist/sweetalert2.js"></script>
+    <?php echo $sweetAlertConfig; ?>
   </form>
 </div>
 

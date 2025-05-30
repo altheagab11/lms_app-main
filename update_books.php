@@ -1,39 +1,41 @@
 <?php 
-session_start();
-if(empty($_SESSION['user_id'])) {
 
-    header('location:login.php');
-    exit();
-
-}
 require_once('classes/database.php');
 $con = new database();
+session_start();
 $sweetAlertConfig = "";
 
-$genres = $con->viewGenres();
-$authors = $con->viewAuthors();
+if (empty($id = $_POST['id'])) {
+
+    header('location: index.php');
+
+} else {
+
+    $id = $_POST['id'];
+    $data = $con->viewBooksID($id);
+
+}
 
 if (isset($_POST['add'])) {
 
+  $id = $_POST['id'];
   $bookTitle = $_POST['booktitle'];
   $bookISBN = $_POST['bookisbn'];
   $bookYear = $_POST['bookyear'];
+  //$bookGenres = $_POST['bookgenre'];
   $bookQuantity = $_POST['bookquan'];
-  $genre_ids = isset($_POST['bookgenre']) ? $_POST['bookgenre'] : [];
-  $author_ids = isset($_POST['bookauthor']) ? $_POST['bookauthor'] : [];
-  $result = $con->addBook($bookTitle, $bookISBN, $bookYear, $bookQuantity, $genre_ids, $author_ids);
+  $bookID = $con->updateBooks($bookTitle, $bookISBN, $bookYear, $bookQuantity, $id);
 
-
-  if ($result) {
+  if ($bookID) {
 
     $sweetAlertConfig = "
     <script>
     
     Swal.fire({
         icon: 'success',
-        title: 'Book Has Been Added Successfully',
-        text: 'A new book has been added to the library!',
-        confirmationButtontext: 'Continue'
+        title: 'Book Updated Successfully',
+        text: 'Book has been updated successfully!',
+        confirmationButtontext: 'OK'
      }).then((result) => {
         if (result.isConfirmed) {
             window.location.href = 'admin_homepage.php'
@@ -44,14 +46,8 @@ if (isset($_POST['add'])) {
 
   } else {
 
-    $sweetAlertConfig = "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Something went wrong',
-                text: 'Please try again.'
-            });
-        </script>";
-
+    $_SESSION['error'] = "Sorry, there was an error.";
+    
   }
 
 }
@@ -64,8 +60,8 @@ if (isset($_POST['add'])) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="./package/dist/sweetalert2.css">
-  <link rel="stylesheet" href="./poppers/css/bootstrap-icons.css">
   <title>Books</title>
 </head>
 <body>
@@ -110,53 +106,40 @@ if (isset($_POST['add'])) {
   <form method="post" action="" novalidate>
     <div class="mb-3">
       <label for="bookTitle" class="form-label">Book Title</label>
-      <input type="text" class="form-control" id="bookTitle" name="booktitle" required>
+      <input type="text" value="<?php echo $data['book_title'] ?>" class="form-control" id="bookTitle" name="booktitle" required>
     </div>
     <div class="mb-3">
       <label for="bookISBN" class="form-label">ISBN</label>
-      <input type="text" class="form-control" id="bookISBN" name="bookisbn" required>
+      <input type="text" value="<?php echo $data['book_isbn'] ?>" class="form-control" id="bookISBN" name="bookisbn" required>
     </div>
     <div class="mb-3">
       <label for="bookYear" class="form-label">Publication Year</label>
-      <input type="number" class="form-control" id="bookYear" name="bookyear" required>
+      <input type="number" value="<?php echo $data['book_pubyear'] ?>" class="form-control" id="bookYear" name="bookyear" required>
     </div>
     <div class="mb-3">
       <label for="bookGenres" class="form-label">Genres</label>
-      <select class="form-select" id="bookGenres" name="bookgenre[]" multiple required>
-        <?php foreach ($genres as $genre): ?>
-        <option value="<?php echo $genre['genre_id']; ?>"><?php echo htmlspecialchars($genre['genre_name']); ?></option>
-        <?php endforeach ?>
-        <!-- Add more genres as needed -->
-      </select>
-      <small class="form-text text-muted">Hold down the Ctrl (Windows) or Command (Mac) key to select multiple genres.</small>
-    </div>
-    <div class="mb-3">
-      <label for="bookAuthors" class="form-label">Authors</label>
-      <select class="form-select" id="bookAuthors" name="bookauthor[]" multiple required>
-        <?php foreach ($authors as $author): ?>
-        <option value="<?php echo $author['author_id']; ?>"><?php echo htmlspecialchars($author['author_FN']. ' ' . $author['author_LN']); ?></option>
-        <?php endforeach ?>
+      <select class="form-select" value="<?php echo $data['book_genre'] ?>" id="bookGenres" name="bookgenre" multiple required>
+        <option value="Fiction">Fiction</option>
+        <option value="Non-Fiction">Non-Fiction</option>
+        <option value="Science">Science</option>
+        <option value="History">History</option>
+        <option value="Biography">Biography</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Mystery">Mystery</option>
         <!-- Add more genres as needed -->
       </select>
       <small class="form-text text-muted">Hold down the Ctrl (Windows) or Command (Mac) key to select multiple genres.</small>
     </div>
     <div class="mb-3">
       <label for="bookQuantity" class="form-label">Quantity Available</label>
-      <input type="number" class="form-control" id="bookQuantity" name="bookquan" required>
+      <input type="number" value="<?php echo $data['quantity_avail'] ?>" class="form-control" id="bookQuantity" name="bookquan" required>
     </div>
-
-    <button type="submit" name="add" class="btn btn-primary">Add Book</button>
-    <script src="./package/dist/sweetalert2.js"></script>
-    <?php echo $sweetAlertConfig; ?>
+    <input type="hidden" name="id" value="<?php echo $data['book_id']; ?>">
+    <button type="submit" name="add" class="btn btn-primary">Update Book</button>
   </form>
 </div>
-
- <!-- Add Popper.js -->
- 
-<script>
-function logout() {
-    window.location.href = 'logout.php';
-}
-</script>
+<script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
+    <script src="./package/dist/sweetalert2.js"></script>
+    <?php echo $sweetAlertConfig; ?>
 </body>
 </html>

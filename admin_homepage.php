@@ -22,8 +22,8 @@ if (isset($_SESSION['user_ID'])) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"> <!-- Correct Bootstrap Icons CSS -->
-  <link rel="stylesheet" href="./poppers/css/bootstrap-icons.css"> <!-- Local Bootstrap Icons CSS -->
+  <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./poppers/css/bootstrap-icons.css">
   <title>Borrowers</title>
 </head>
 <body>
@@ -264,51 +264,45 @@ if (isset($_SESSION['user_ID'])) {
               </tr>
             </thead>
             <tbody>
+              <?php 
+            
+            $data = $con->viewBooks();
+            foreach ($data as $rows) {
+
+            ?>
+
               <tr>
-                <td>1</td>
-                <td>The Adventures of Tom Sawyer</td>
-                <td>978-0-123456-47-2</td>
-                <td>1876</td>
-                <td>5</td>
+                <td><?php echo $rows['book_id']?></td>
+                <td><?php echo $rows['book_title']?></td>
+                <td><?php echo $rows['book_isbn']?></td>
+                <td><?php echo $rows['book_pubyear']?></td>
+                <td><?php echo $rows['quantity_avail']?></td>
                 <td>
-                  <button type="submit" class="btn btn-warning btn-sm">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <button type="submit" name="delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this book?')">
-                    <i class="bi bi-x-square"></i>
-                  </button>
+                  <div class="btn-group" role="group">
+                    <form action="update_books.php" method="post">
+                    
+                    <input type="hidden" name="id" value="<?php echo $rows['book_id']; ?>">  
+                    <button type="submit" class="btn btn-warning btn-sm">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+  
+                    </form>
+                    
+                    <form method="POST" class="mx-1">
+                      <input type="hidden" name="id" value="<?php echo $rows['book_id']; ?>">
+                      <button type="submit" name="delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?')">
+                        <i class="bi bi-x-square"></i>
+                      </button>
+                    </form>
+        </div>
+ 
                 </td>
               </tr>
-              <tr>
-                <td>2</td>
-                <td>Pride and Prejudice</td>
-                <td>978-0-123456-48-9</td>
-                <td>1813</td>
-                <td>3</td>
-                <td>
-                  <button type="submit" class="btn btn-warning btn-sm">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <button type="submit" name="delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this book?')">
-                    <i class="bi bi-x-square"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>Dune</td>
-                <td>978-0-123456-49-6</td>
-                <td>1965</td>
-                <td>7</td>
-                <td>
-                  <button type="submit" class="btn btn-warning btn-sm">
-                    <i class="bi bi-pencil-square"></i>
-                  </button>
-                  <button type="submit" name="delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this book?')">
-                    <i class="bi bi-x-square"></i>
-                  </button>
-                </td>
-              </tr>
+
+              <?php
+            }
+            ?>
+              
             </tbody>
           </table>
         </div>
@@ -317,14 +311,13 @@ if (isset($_SESSION['user_ID'])) {
   </div>
 </div>
 <script src="poppers/js/popper.min.js"></script> <!-- Local Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script> <!-- Add Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script> <!-- Correct Bootstrap JS -->
+<script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script> <!-- Correct Bootstrap JS -->
+ <!-- Add Popper.js -->
+ 
 <script>
-  function logout() {
-
-    window.location.href="logout.php";
-
-  }
+function logout() {
+    window.location.href = 'logout.php';
+}
 </script>
 </body>
 </html>

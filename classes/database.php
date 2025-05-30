@@ -131,22 +131,40 @@ class database{
 
     }
 
-    function addBook($bookTitle, $bookISBN, $bookYear, $bookGenres, $bookQuantity) {
+    function addBook($bookTitle, $bookISBN, $bookYear, $bookQuantity, $genre_ids = [], $author_ids = []) {
 
          $con = $this->opencon();
         
         try {
             $con->beginTransaction();
 
-            $stmt = $con->prepare("INSERT INTO books (book_title, book_isbn, book_pubyear, book_genre, quantity_avail) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$bookTitle, $bookISBN, $bookYear, $bookGenres, $bookQuantity]);
-            $bookID = $con->lastInsertId();
+            $stmt = $con->prepare("INSERT INTO books (book_title, book_isbn, book_pubyear, quantity_avail) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$bookTitle, $bookISBN, $bookYear, $bookQuantity]);
+            $book_id = $con->lastInsertId();
+            
+            foreach ($genre_ids as $genre_id) {
+                $stmt = $con->prepare("INSERT INTO Genre_Books (genre_id, book_id) VALUES (?, ?)");
+                $stmt->execute([$genre_id, $book_id]);
+            }
+
+            foreach ($author_ids as $author_id) {
+                $stmt = $con->prepare("INSERT INTO Book_Authors (book_id, author_id) VALUES (?, ?)");
+                $stmt->execute([$book_id, $author_id]);
+            }
+
+            for ($i = 0; $i < $bookQuantity; $i++) {
+
+                $stmt = $con->prepare("INSERT INTO Book_Copy (book_id, is_available) VALUES (?, 1)");
+                $stmt->execute([$book_id]);
+
+            }
+
             $con->commit();
-            return $bookID;
+            return $book_id;
 
         } catch (PDOException $e) {
 
-            $con->rollback();
+            $con->rollBack();
             return false;
 
         }
@@ -207,6 +225,38 @@ function viewGenresID($id) {
         $con->beginTransaction();
         $query = $con->prepare("UPDATE Genres SET genre_name=? WHERE genre_id=?");
         $query->execute([$genreName, $id]);
+        
+        $con->commit();
+        return true;
+    } catch (PDOException $e) {
+        
+         $con->rollBack();
+        return false; 
+    }
+}
+
+function viewBooks() {
+
+        $con = $this->opencon();
+        return $con->query("SELECT * FROM Books")->fetchAll();
+
+    }
+
+    function viewBooksID($id) {
+
+        $con = $this->opencon();
+        $stmt = $con->prepare("SELECT * FROM Books WHERE book_id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+    }
+
+    function updateBooks($bookTitle, $bookISBN, $bookYear, $bookQuantity, $id) {
+    try {
+        $con = $this->opencon();
+        $con->beginTransaction();
+        $query = $con->prepare("UPDATE Books SET book_title=?, book_isbn=?, book_pubyear=?, quantity_avail=? WHERE book_id=?");
+        $query->execute([$bookTitle, $bookISBN, $bookYear, $bookQuantity, $id]);
         
         $con->commit();
         return true;
